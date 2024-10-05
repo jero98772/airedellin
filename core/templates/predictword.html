@@ -117,7 +117,7 @@
 
               // Set popup content and position it on the map
               popup.setLngLat(coords)
-                .setHTML(`<h4>Air Quality Data</h4><p>${object.properties.pm25}</p>`)
+                .setHTML(`<h4>Air Quality Data</h4><p>${object.properties.pm25}</p><p> <a href="">see data </a></p>`)
                 .addTo(map);
             }
           }
@@ -125,7 +125,7 @@
 
         overlay = new deck.MapboxOverlay({
           layers: [layer],
-          getTooltip: ({object}) => object && `Density: ${object.mean}`
+          getTooltip: ({object}) => object && `Click here`
         });
 
         map.addControl(overlay);

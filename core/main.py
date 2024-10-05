@@ -75,14 +75,12 @@ async def shutdown_event():
 @app.get(webpage+"/predictword", response_class=HTMLResponse)
 async def predictword(request: Request):
     data=get_pm25_features(nasa_data)
-    print(data)
+    #print(data)
     return templates.TemplateResponse("predictword.html", {"request": request, "token": token, "data": data})
 
-@app.get(webpage+"/maphex{sensor_name}", response_class=HTMLResponse)
+@app.get(webpage+"/maphex{coordinates}", response_class=HTMLResponse)
 async def maphex(request: Request, sensor_name: str):
-    data = sensors.data(sensor_name)
-    data = [int(value) for value in data if value is not None]
-    donations=retrieve_data_for_sensor(sensor_name,dummy_donations)
+    data=get_pm25_features(nasa_data)
     return templates.TemplateResponse("maphexhistory.html", {
         "request": request,
         "maphex": "",
