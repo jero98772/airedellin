@@ -165,7 +165,7 @@
             if (object) {
               const coords = map.unproject([x, y]);
               popup.setLngLat(coords)
-                .setHTML(`<h4><a href="https://airly.org/en/what-is-pm10-and-what-is-pm2-5/">PM2.5</a>µg/m³ Data</h4><p>${object.properties.pm25}</p><p><a href="/maphex${object.geometry.coordinates}">see data</a></p>`)
+                .setHTML(`<h4><a href="https://airly.org/en/what-is-pm10-and-what-is-pm2-5/">PM2.5</a>µg/m³ Data</h4><p>${object.properties.pm25}</p><p><a href="/maphex${object.geometry.coordinates}"><b>Play with the Data</b></a></p>`)
                 .addTo(map);
             }
           }
@@ -193,7 +193,7 @@
             if (object) {
               const coords = map.unproject([x, y]);
               popup.setLngLat(coords)
-                .setHTML(`<h4><a href="https://airly.org/en/what-is-pm10-and-what-is-pm2-5/">PM2.5</a>µg/m³ Data</h4><p>${object.properties.pm25}</p><p><a href="/maphex${object.geometry.coordinates}">see data</a></p>`)
+                .setHTML(`<h4><a href="https://airly.org/en/what-is-pm10-and-what-is-pm2-5/">PM2.5</a>µg/m³ Data</h4><p>${object.properties.pm25}</p><p><a href="/maphex${object.geometry.coordinates}"><b>Play with the Data</b></a></p>`)
                 .addTo(map);
             }
           }
