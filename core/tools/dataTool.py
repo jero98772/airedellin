@@ -10,7 +10,7 @@ import polars as pl
 
 
 
-def get_pm25_features(file_path: str, resolution: int = 3):
+def get_pm25_features(file_path: str,size=None, resolution: int = 3):
 
     #separate this function in 2 parts
     """
@@ -46,18 +46,23 @@ def get_pm25_features(file_path: str, resolution: int = 3):
     }
     """
     # Read the CSV file with Polars
-    df = pl.read_csv(file_path)
-
+    if size==None:
+        df = pl.read_csv(file_path)
+        print("not here")
+    else:
+        df = pl.read_csv(file_path).head(size)
+        print("here")
     # Group by latitude and longitude, then calculate the mean PM2.5 for each group
     grouped = df.group_by(["lat", "lon"]).agg([
         pl.col("MERRA2_CNN_Surface_PM25").mean().alias("mean_pm25")
     ])
-
     # Convert each grouped result into the GeoJSON-style feature format
     features = []
+    hexagons_data = dict()
+    #for row in grouped.rows():
+    for row in df.iter_rows():
 
-    for row in grouped.rows():
-        lat, lon, mean_pm25 = row
+        lat, lon, pm25 = row[df.columns.index("lat")], row[df.columns.index("lon")], row[df.columns.index("MERRA2_CNN_Surface_PM25")]
 
         # Create GeoJSON feature with coordinates and properties
         hexId = h3.geo_to_h3(lat, lon, resolution)
@@ -65,20 +70,23 @@ def get_pm25_features(file_path: str, resolution: int = 3):
             "type": "Feature",
             "properties": {
                 "name": f"{lat},{lon}",
-                "pm25": float(mean_pm25)  # PM2.5 average
+                "pm25": pm25  # PM2.5 average
             },
             "geometry": {
                 "type": "Point",
                 "coordinates": [hexId]  # Valid coordinates (longitude, latitude)
             }
         }
-
+        if hexId in hexagons_data:
+            hexagons_data[hexId].append(float(int(pm25)))
+        else:
+            hexagons_data[hexId]=[float(int(pm25))]
         # Convert coordinates to H3 hexId
         #feature["properties"]["hexId"] = hexId  # Add H3 hexagon ID to the feature
 
         features.append(feature)
 
-    return features
+    return features,hexagons_data
 
 def get_pm25_hexagon(hexagon,file_path: str, resolution: int = 3):
     """

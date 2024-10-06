@@ -30,7 +30,7 @@ dummy_donations=load_data("data/dummy_donations.json")
 host = "influxdb.canair.io"
 sensors = Sensors("canairio", host)
 templates = Jinja2Templates(directory="core/templates")
-nasa_data="data/data_nasa.csv"
+nasa_data_file="data/data_nasa.csv"
 
 
 algorithm_names = ["originalData","linearRegression", "Arima", "randomForest","Sarima","Lasso","Xgboost","ExponentialSmoothing","LSTM","polyRegresion","temporalConvolutionalNetwork","RNN","Prophet"]
@@ -50,10 +50,12 @@ algorithm_map = {
 }
 
 formatted_data = []
+nasa_data_by_hex = None
+nasa_data_webpage = None
 
 calibrating = False
-
-webpage=""
+data_ready = False
+webpage = ""
 
 async def update_sensor_data():
     global formatted_data
@@ -65,8 +67,11 @@ async def update_sensor_data():
 @app.on_event("startup")
 async def startup_event():
     # Start the background task to update sensor data every 30 minutes
+    global nasa_data_webpage,nasa_data_by_hex,data_ready
     asyncio.create_task(update_sensor_data())
-    
+    nasa_data_webpage,nasa_data_by_hex=get_pm25_features(nasa_data_file,15000)
+    print(nasa_data_webpage,nasa_data_by_hex)
+
 @app.on_event("shutdown")
 async def shutdown_event():
     for task in asyncio.all_tasks():
@@ -74,18 +79,32 @@ async def shutdown_event():
 
 @app.get(webpage+"/predictword", response_class=HTMLResponse)
 async def predictword(request: Request):
-    data=get_pm25_features(nasa_data)
-    #print(data)
-    return templates.TemplateResponse("predictword.html", {"request": request, "token": token, "data": data})
+
+    return templates.TemplateResponse("predictword.html", {"request": request, "token": token, "data": nasa_data_webpage})
 
 @app.get(webpage+"/maphex{coordinates}", response_class=HTMLResponse)
-async def maphex(request: Request, sensor_name: str):
-    data=get_pm25_features(nasa_data)
+async def maphex(request: Request, coordinates: str):
+    print(nasa_data_by_hex,coordinates)
+    data=nasa_data_by_hex[coordinates]
     return templates.TemplateResponse("maphexhistory.html", {
         "request": request,
-        "maphex": "",
-
+        "cordinates": coordinates,
+        "data": data,
     })
+@app.get(webpage+"/maphex{coordinates}/statistics", response_class=HTMLResponse)
+async def mapstatistics(request: Request, coordinates: str):
+    #data = sensors.data(sensor_name)
+    pm25=nasa_data_by_hex[coordinates]
+    print(pm25)
+    stad = statistics_extractor(pm25)
+    #data = [int(value) for value in data if value is not None]
+    return templates.TemplateResponse("hexstatistics.html", {
+        "request": request,
+        "coordinates": coordinates,
+        "data": pm25,
+        "statistics":stad,
+    })
+
 
 @app.get(webpage+"/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -167,7 +186,7 @@ async def statistics(request: Request, sensor_name: str):
     pm25=data["pm25"]
     pm10=data["pm10"]
     pm1=data["pm1"]
-
+    print(pm25)
     stad = statistics_extractor(pm25)
     #data = [int(value) for value in data if value is not None]
     return templates.TemplateResponse("statistics.html", {

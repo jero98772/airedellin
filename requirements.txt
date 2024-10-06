@@ -10,3 +10,4 @@ tensorflow
 pygeohash
 h3
 prophet
+polars

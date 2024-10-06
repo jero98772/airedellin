@@ -1,53 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-        <!-- Donation Section -->
-        <div class="donation-section frame">
-            <h2>Support Our Air Quality Monitoring</h2>
-            <p>Your donations help us keep this <b>sensor</b> running. Thank you for your support!</p>
-            <div class="row">
-                <div class="col-md-8">
-                    <h5>{{ sensor_name }} Donation ID: {{ donations.account }} at {{ donations.entity }}</h5>
-                    <p>we are planing to use <a href="https://nostr.com/">nostr</a> because is a not trust needed alterative </p>
-                    <p> THIS IS A PROOF OF CONCEPT NOW (NOT IS REAL🏗️)</p>
-                </div>
-                <div class="col-md-4">
-                    <div class="donation-frame text-center">
-                        <h5>Scan to Donate</h5>
-                        {% if donations.image == "https://via.placeholder.com/150" %}
-                            <img src="https://via.placeholder.com/150" alt="QR Code" height="150" width="150">
-                        {% else %}
-                            <img src="/static/{{ donations.image }}" alt="QR Code" height="150" width="150">
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Dashboard Section -->
         <div class="dashboard-section frame">
-            <h2><b>Live</b> Air Quality Dashboard</h2>
+            <h2><b>Satelital</b> Air Quality Dashboard by place</h2>
             <div class="chart-frame">
                 <h4>Data Chart</h4>
                 <canvas id="dataChart" width="100%" height="70%"></canvas>
-            </div>
-            <div class="mt-3">
-                <div>
-                    <center>
-                        
-                            <button id="zoomIn" class="btn btn-primary">Zoom In</button>
-                            <button id="zoomOut" class="btn btn-primary">Zoom Out</button>
-                            <button id="resetZoom" class="btn btn-secondary">Reset Zoom</button>
-                            <form method="post" id="rangeForm" >
-                                <button id="resetZoom" class="btn btn-primary">Select by 1 day</button>
-                                <input type="hidden" name="rangetime" id="selectedRange" value="24h"> <!-- Default value -->
-                                <button type="button" class="btn btn-primary" data-range="1w">Select by 1 week</button>
-                                <button type="button" class="btn btn-primary" data-range="1m">Select by 1 month</button>
-                                <button type="button" class="btn btn-primary" data-range="1y">Select by 6 months</button>
-                            </form>
-                    </center>
-                </div>
-
             </div>
             <script>
             function getColor(pm25) {
@@ -147,19 +108,6 @@
                 });
             });
 
-            // Zoom control buttons
-            document.getElementById('zoomIn').addEventListener('click', () => {
-                dataChart.zoom(1.1);
-            });
-
-            document.getElementById('zoomOut').addEventListener('click', () => {
-                dataChart.zoom(0.9);
-            });
-
-            document.getElementById('resetZoom').addEventListener('click', () => {
-                dataChart.resetZoom();
-            });
-
             </script>
 
 
@@ -169,14 +117,14 @@
         <div class="ml-section frame">
             <h2>Machine Learning Predictions</h2>
             <p>Analyze and predict future air quality trends using our machine learning models.</p>
-            <a href="/sensor{{ sensor_name }}/predictions"> <button class="btn btn-primary btn-lg">Run ML Prediction</button></a>
+            <a href="/maphex{{ cordinates }}/predictions"> <button class="btn btn-primary btn-lg">Run ML Prediction</button></a>
         </div>
 
         <!-- Statistics Section -->
         <div class="ml-section frame">
             <h2>Statistics (In progres 🏗️🚧)</h2>
             <p>Analyze air quality trends using our statistics methods.</p>
-            <a href="/sensor{{ sensor_name }}/statistics"> <button class="btn btn-primary btn-lg">Run Statistics</button></a>
+            <a href="/maphex{{ cordinates }}/statistics"> <button class="btn btn-primary btn-lg">Run Statistics</button></a>
         </div>
 
 {% endblock %}

@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+        <!-- Dashboard Section -->
+        <div class="dashboard-section frame">
+
+             <!-- Statistics Matrix -->
+        <div class="mt-4">
+            <h1 class="display-4">Statistical Summary</h1>
+            <table class="table table-bordered table-summary">
+                <thead>
+                    <tr>
+                        <th>Sum</th>
+                        <th>Mean</th>
+                        <th>Variance</th>
+                        <th>Standard Deviation</th>
+                        <th>Max</th>
+                        <th>Min</th>
+                        <th>Mode</th>
+                        <th>Kurtosis</th>
+                        <th>Skewness</th>
+                        <th>CV</th>
+                        <th>None Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="sumValue">{{ statistics.sum }}</td>
+                        <td id="meanValue">{{ statistics.mean }}</td>
+                        <td id="varianceValue">{{ statistics.variance }}</td>
+                        <td id="stdDevValue">{{ statistics.standard_deviation }}</td>
+                        <td id="maxValue">{{ statistics.max }}</td>
+                        <td id="minValue">{{ statistics.min }}</td>
+                        <td id="modeValue">{{ statistics.mode }}</td>
+                        <td id="kurtosisValue">{{ statistics.kurtosis }}</td>
+                        <td id="skewnessValue">{{ statistics.skewness }}</td>
+                        <td id="cvValue">{{ statistics.CV }}</td>
+                        <td id="noneCountValue">{{ statistics.count_none }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+            <!-- Z-score Chart -->
+            <div class="chart-frame mt-4">
+
+                <h4><a href="https://en.wikipedia.org/wiki/Standard_score">Z-score</a> Chart</h4>
+                <canvas id="zscoreChart" width="100%" height="70%"></canvas>
+            </div>
+            <!-- Ocurrences Chart -->
+            <div class="chart-frame mt-4">
+
+                <h4><a href="">Ocurrences</a> Chart</h4>
+                <canvas id="occurrencesChart" width="100%" height="70%"></canvas>
+            </div>
+
+            <h2><b>Live</b> Air Quality Dashboard (Pm2.5)</h2>
+            <div class="chart-frame">
+                <h4>Data Chart</h4>
+                <canvas id="dataChart" width="100%" height="30%"></canvas>
+            </div>
+
+            <script>
+     
+            function getColor(pm25) {
+                if (pm25 > 150) {
+                    return colorPalette[5]; // Black
+                } else if (pm25 > 100) {
+                    return colorPalette[4]; // Purple
+                } else if (pm25 > 55) {
+                    return colorPalette[3]; // Red
+                } else if (pm25 > 35) {
+                    return colorPalette[2]; // Orange
+                } else if (pm25 > 12) {
+                    return colorPalette[1]; // Yellow
+                } else {
+                    return colorPalette[0]; // Green
+                }
+            }
+
+            const dataArray = {{ data }};  // Replace with your data source
+
+            const zscoreArray = {{ statistics.z_scores }};  // Replace with your data
+
+            const numLabels = dataArray.length;
+
+            //const colorPalette = ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97', '#7e0023'];
+            const colorPalette = ['#77ff77', '#ffffcc', '#ffb380', '#ff8080', '#cc99cc', '#cc6677'];
+            const labels = Array.from({ length: numLabels }, (_, index) => index);
+
+            const ctx = document.getElementById('dataChart').getContext('2d');
+            const dataChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'PM2.5 μg/m³',
+                        data: {{ data }},
+                        borderColor: function(context) {
+                            const index = context.dataIndex;
+                            const value = context.dataset.data[index];
+                            return getColor(value);
+                        },
+                        backgroundColor:  function(context) {
+                            const index = context.dataIndex;
+                            const value = context.dataset.data[index];
+                            return getColor(value);
+                        },
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        segment: {
+                            borderColor: 'rgba(240, 240, 240, 0.9)',
+                            
+                        }
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Measurements (30s)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'PM2.5 μg/m³'
+                            }
+                        }
+                    },
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy',
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'xy',
+                            }
+                        }
+                    },
+                    responsive: true,
+                }
+            });
+
+
+
+            // Z-score chart
+            const ctxzscore = document.getElementById('zscoreChart').getContext('2d');
+            const zscoreChart = new Chart(ctxzscore, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'zscore',
+                        data: zscoreArray,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Measurements by (30s)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Z-score'
+                            }
+                        }
+                    },
+                    responsive: true,
+                }
+            });
+
+        // Count occurrences of each number
+        const occurrences = {{  statistics.ocurrences }};
+
+        // Prepare data for Chart.js
+        const labels_ocurrences = Object.keys(occurrences);
+        const values_ocurrences = Object.values(occurrences);
+
+        const ctxocurrences = document.getElementById('occurrencesChart').getContext('2d');
+        const occurrencesChart = new Chart(ctxocurrences, {
+            type: 'bar',
+            data: {
+                labels: labels_ocurrences,
+                datasets: [{
+                    label: 'Occurrences',
+                    data: values_ocurrences,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Number'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Occurrences'
+                        },
+                        beginAtZero: true
+                    }
+                },
+                responsive: true,
+            }
+        });
+
+            </script>
+        </div>
+{% endblock %}
