@@ -105,6 +105,48 @@ async def mapstatistics(request: Request, coordinates: str):
         "statistics":stad,
     })
 
+@app.get(webpage+"/maphex{coordinates}/predictions", response_class=HTMLResponse)
+async def get_mlalgorithmhex(request: Request, coordinates: str):
+    data = nasa_data_by_hex[coordinates]
+    return templates.TemplateResponse("hex_ml_algorithms.html", {
+        "request": request,
+        "algorithm_names": algorithm_names,
+        "algorithm_selected": "",
+        "data": data,
+        "result": None
+    })
+
+@app.post(webpage+"/maphex{coordinates}/predictions", response_class=HTMLResponse)
+async def post_mlalgorithmhex(
+    request: Request,
+    coordinates: str,
+    algorithm: str = Form(...),
+    background_tasks: BackgroundTasks = None
+):  
+
+    def apply_algorithm(algorithm, data):
+        if algorithm in algorithm_map:
+            return algorithm_map[algorithm](data)
+        elif algorithm == "originalData":
+            return [[int(value) for value in data if value is not None], "0"]
+        else:
+            random_list = [random.randint(0, 55) for _ in range(200)]
+            return [random_list, "THE ALGORITHM SELECTED DOES NOT EXIST"]
+
+    # Fetch sensor data asynchronously
+    data=nasa_data_by_hex[coordinates]
+
+    # Apply the algorithm in a separate thread
+    result = await asyncio.to_thread(apply_algorithm, algorithm, data)
+
+    # Render the result asynchronously
+    return templates.TemplateResponse("hex_ml_algorithms.html", {
+        "request": request,
+        "algorithm_names": algorithm_names,
+        "algorithm_selected": algorithm,
+        "data": list(map(int, result[0])),
+        "result": "Error of " + str(result[1])
+    })
 
 @app.get(webpage+"/", response_class=HTMLResponse)
 async def index(request: Request):

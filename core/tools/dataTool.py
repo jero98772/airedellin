@@ -10,7 +10,7 @@ import polars as pl
 
 
 
-def get_pm25_features(file_path: str,size=None, resolution: int = 3):
+def get_pm25_features(file_path: str,size=None, resolution: int = 4):
 
     #separate this function in 2 parts
     """
