@@ -16,6 +16,44 @@
   <body>
     <div id="map"></div>
     <button id="toggle-button">Hide Heatmap</button>
+  <!-- Add PM2.5 Scale Table -->
+    <div id="pm25-scale">
+      <table>
+        <thead>
+          <tr>
+            <th><a href="https://airly.org/en/what-is-pm10-and-what-is-pm2-5/">PM2.5 Range</a></th>
+            <th>Color</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0-12 µg/m³ (Good)😊</td>
+            <td><span class="pm-color" style="background-color: rgb(153, 255, 153);"></span></td>
+          </tr>
+          <tr>
+            <td>12-35 µg/m³ (Moderate)😮</td>
+            <td><span class="pm-color" style="background-color: rgb(255, 255, 153);"></span></td>
+          </tr>
+          <tr>
+            <td>35-55 µg/m³ (Unhealthy for Sensitive Groups)😷</td>
+            <td><span class="pm-color" style="background-color: rgb(255, 204, 153);"></span></td>
+          </tr>
+          <tr>
+            <td>55-100 µg/m³ (Unhealthy)🤒</td>
+            <td><span class="pm-color" style="background-color: rgb(255, 153, 153);"></span></td>
+          </tr>
+          <tr>
+            <td>100-150 µg/m³ (Very Unhealthy)😶‍🌫</td>
+            <td><span class="pm-color" style="background-color: rgb(204, 153, 204);"></span></td>
+          </tr>
+          <tr>
+            <td>150+ µg/m³ (Hazardous)💀</td>
+            <td><span class="pm-color" style="background-color: rgb(153, 153, 153);"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
     <script>
   const MAPTILER_KEY = '{{ token }}';
   const url = 'https://maps.clockworkmicro.com/streets/v1/style?x-api-key=';
@@ -93,7 +131,7 @@
               </a> 
               <span class="text-muted">Click to see measures</span>
             </p>
-            <p><strong>Mean of pm25:</strong> 
+            <p><strong>Mean of pm2.5µg/m³:</strong> 
               <a href="http://influxdb.canair.io:8000/dashboards" class="text-success text-decoration-none" style="transition: color 0.2s;">
                 ${object.properties.pm25}
               </a> 

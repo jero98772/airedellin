@@ -51,10 +51,14 @@ algorithm_map = {
 
 formatted_data = []
 nasa_data_by_hex = None
-nasa_data_webpage = None
+nasa_data_webpage3 = None
+nasa_data_webpage4 = None
 
 calibrating = False
 data_ready = False
+
+size=15000
+
 webpage = ""
 
 async def update_sensor_data():
@@ -67,10 +71,11 @@ async def update_sensor_data():
 @app.on_event("startup")
 async def startup_event():
     # Start the background task to update sensor data every 30 minutes
-    global nasa_data_webpage,nasa_data_by_hex,data_ready
+    global nasa_data_webpage3,nasa_data_webpage4,nasa_data_by_hex,data_ready
     asyncio.create_task(update_sensor_data())
-    nasa_data_webpage,nasa_data_by_hex=get_pm25_features(nasa_data_file,15000)
-    print(nasa_data_webpage,nasa_data_by_hex)
+    nasa_data_webpage3,nasa_data_by_hex3=get_pm25_features(nasa_data_file,size,resolution=3)
+    nasa_data_webpage4,nasa_data_by_hex4=get_pm25_features(nasa_data_file,size,resolution=4)
+    nasa_data_by_hex=nasa_data_by_hex4 | nasa_data_by_hex3
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -80,7 +85,7 @@ async def shutdown_event():
 @app.get(webpage+"/predictword", response_class=HTMLResponse)
 async def predictword(request: Request):
 
-    return templates.TemplateResponse("predictword.html", {"request": request, "token": token, "data": nasa_data_webpage})
+    return templates.TemplateResponse("predictword.html", {"request": request, "token": token, "data1": nasa_data_webpage3,"data2": nasa_data_webpage4})
 
 @app.get(webpage+"/maphex{coordinates}", response_class=HTMLResponse)
 async def maphex(request: Request, coordinates: str):

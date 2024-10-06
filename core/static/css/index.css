@@ -21,3 +21,35 @@ html, body, #map { height: 100%; }
 .text-success:hover {
   color: #198754 !important; /* Bootstrap's success color */
 }
+      .maplibregl-popup {
+        z-index: 2;
+      }
+      #pm25-scale {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 8px;
+        font-family: Arial, sans-serif;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      #pm25-scale table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      #pm25-scale th, #pm25-scale td {
+        padding: 4px 8px;
+        text-align: left;
+      }
+      .pm-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-block;
+      }    
+      #toggle-button:hover {
+        scale: 1.1;
+        box-shadow: 0 0 4px 4px gray;
+      }
